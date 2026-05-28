@@ -1,0 +1,25 @@
+# Terraform
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# AWS credentials
+*.pem
+*.csv
+.aws/
+
+# Azure credentials
+.azure/
+
+# Environment files
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log
