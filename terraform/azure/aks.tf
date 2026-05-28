@@ -3,7 +3,7 @@ resource "azurerm_resource_group" "main" {
   location = var.location
 
   tags = {
-    Project     = "schneider-migration"
+    Project     = "sh-migration"
     Environment = "demo"
   }
 }
@@ -26,7 +26,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   tags = {
-    Project     = "schneider-migration"
+    Project     = "sh-migration"
     Environment = "demo"
   }
 }
@@ -42,7 +42,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "druid" {
   }
 
   tags = {
-    Project     = "schneider-migration"
+    Project     = "sh-migration"
     Environment = "demo"
   }
 }

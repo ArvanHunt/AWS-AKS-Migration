@@ -1,7 +1,7 @@
 variable "resource_group_name" {
   description = "Azure resource group name"
   type        = string
-  default     = "schneider-migration-rg"
+  default     = "sh-migration-rg"
 }
 
 variable "location" {
@@ -13,7 +13,7 @@ variable "location" {
 variable "cluster_name" {
   description = "AKS cluster name"
   type        = string
-  default     = "schneider-aks"
+  default     = "sh-aks"
 }
 
 variable "kubernetes_version" {

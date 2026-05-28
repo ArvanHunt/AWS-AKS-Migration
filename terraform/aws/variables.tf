@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "cluster_name" {
   description = "EKS cluster name"
   type        = string
-  default     = "schneider-eks"
+  default     = "sh-eks"
 }
 
 variable "cluster_version" {

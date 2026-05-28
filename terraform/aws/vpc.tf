@@ -15,7 +15,7 @@ module "vpc" {
   enable_dns_support   = true
 
   tags = {
-    Project     = "schneider-migration"
+    Project     = "sh-migration"
     Environment = "demo"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   }

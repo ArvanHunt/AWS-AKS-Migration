@@ -8,7 +8,7 @@ terraform {
   required_version = ">= 1.0"
 
   backend "s3" {
-    bucket  = "schneider-terraform-state"
+    bucket  = "sh-migration-tfstate-2026"
     key     = "aws/eks/terraform.tfstate"
     region  = "ap-south-1"
     encrypt = true

@@ -18,19 +18,19 @@ module "eks" {
       desired_size = var.node_desired_size
 
       labels = {
-        Project     = "schneider-migration"
+        Project     = "sh-migration"
         Environment = "demo"
       }
 
       tags = {
-        Project     = "schneider-migration"
+        Project     = "sh-migration"
         Environment = "demo"
       }
     }
   }
 
   tags = {
-    Project     = "schneider-migration"
+    Project     = "sh-migration"
     Environment = "demo"
   }
 }
