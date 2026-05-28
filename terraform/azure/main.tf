@@ -6,6 +6,13 @@ terraform {
     }
   }
   required_version = ">= 1.0"
+
+  backend "s3" {
+    bucket  = "schneider-terraform-state"
+    key     = "azure/aks/terraform.tfstate"
+    region  = "ap-south-1"
+    encrypt = true
+  }
 }
 
 provider "azurerm" {
