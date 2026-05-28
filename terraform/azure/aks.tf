@@ -19,25 +19,26 @@ resource "azurerm_kubernetes_cluster" "main" {
     name       = "default"
     node_count = var.node_count
     vm_size    = var.node_vm_size
-
-    labels = {
-      Project     = "schneider-migration"
-      Environment = "demo"
-    }
-  }
-
-  additional_node_pools {
-    name       = "druidpool"
-    node_count = var.druid_node_count
-    vm_size    = var.node_vm_size
-
-    labels = {
-      workload = "druid"
-    }
   }
 
   identity {
     type = "SystemAssigned"
+  }
+
+  tags = {
+    Project     = "schneider-migration"
+    Environment = "demo"
+  }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "druid" {
+  name                  = "druidpool"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
+  vm_size               = var.node_vm_size
+  node_count            = var.druid_node_count
+
+  node_labels = {
+    workload = "druid"
   }
 
   tags = {
