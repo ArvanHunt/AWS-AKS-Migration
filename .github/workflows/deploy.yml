@@ -1,0 +1,108 @@
+name: Deploy to AKS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'developer_code_1/**'
+      - 'kafka/**'
+      - 'druid/**'
+      - 'mongo/**'
+  workflow_dispatch:
+
+env:
+  ACR_REGISTRY: shmigrationsregistry.azurecr.io
+
+jobs:
+  build-and-push:
+    name: Build and Push Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push data generator
+        uses: docker/build-push-action@v5
+        with:
+          context: developer_code_1
+          file: developer_code_1/Dockerfile
+          push: true
+          tags: |
+            ${{ env.ACR_REGISTRY }}/data-generator:${{ github.sha }}
+            ${{ env.ACR_REGISTRY }}/data-generator:latest
+
+      - name: Build and push consumer
+        uses: docker/build-push-action@v5
+        with:
+          context: developer_code_1
+          file: developer_code_1/Dockerfile.consumer
+          push: true
+          tags: |
+            ${{ env.ACR_REGISTRY }}/sh-consumer:${{ github.sha }}
+            ${{ env.ACR_REGISTRY }}/sh-consumer:latest
+
+  deploy:
+    name: Deploy to AKS
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials \
+            --resource-group sh-migration-rg \
+            --name sh-aks \
+            --overwrite-existing
+
+      - name: Create namespaces
+        run: |
+          kubectl create namespace source --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace destination --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy source namespace
+        run: |
+          kubectl apply -f kafka/zookeeper.yaml
+          kubectl apply -f kafka/kafka.yaml
+          kubectl apply -f kafka/postgres.yaml
+          kubectl apply -f kafka/redis.yaml
+
+      - name: Deploy destination namespace
+        run: |
+          kubectl apply -f mongo/mongodb.yaml
+          kubectl apply -f druid/druid-config.yaml
+          kubectl apply -f druid/druid.yaml
+
+      - name: Deploy data generator
+        run: |
+          kubectl set image deployment/data-generator \
+            data-generator=${{ env.ACR_REGISTRY }}/data-generator:${{ github.sha }} \
+            -n source
+
+      - name: Deploy consumer
+        run: |
+          kubectl set image deployment/sh-consumer \
+            sh-consumer=${{ env.ACR_REGISTRY }}/sh-consumer:${{ github.sha }} \
+            -n destination
+
+      - name: Verify deployments
+        run: |
+          kubectl rollout status deployment/data-generator -n source --timeout=120s
+          kubectl rollout status deployment/sh-consumer -n destination --timeout=120s
+          echo "All deployments successful"
