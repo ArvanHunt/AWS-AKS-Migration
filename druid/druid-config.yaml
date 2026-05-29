@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: druid-config
+  namespace: destination
+data:
+  DRUID_XMX: "512m"
+  DRUID_XMS: "512m"
+  DRUID_MAXDIRECTMEMORYSIZE: "400m"
+  druid_extensions_loadList: '["druid-kafka-indexing-service","druid-datasketches","postgresql-metadata-storage"]'
+  druid_zk_service_host: "zookeeper.source.svc.cluster.local"
+  druid_metadata_storage_type: "derby"
+  druid_metadata_storage_connector_connectURI: "jdbc:derby://localhost:1527/var/druid/metadata.db;create=true"
+  druid_coordinator_balancer_strategy: "cachingCost"
+  druid_indexer_queue_startDelay: "PT30S"
+  druid_broker_http_numConnections: "5"
+  druid_processing_buffer_sizeBytes: "100000000"
+  druid_processing_numMergeBuffers: "2"
+  druid_processing_numThreads: "1"
+  druid_coordinator_startDelay: "PT30S"
+  druid_coordinator_period: "PT30S"

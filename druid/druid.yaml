@@ -1,0 +1,219 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-coordinator
+  namespace: destination
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid-coordinator
+  template:
+    metadata:
+      labels:
+        app: druid-coordinator
+    spec:
+      containers:
+      - name: druid-coordinator
+        image: apache/druid:28.0.0
+        args: ["coordinator"]
+        envFrom:
+        - configMapRef:
+            name: druid-config
+        ports:
+        - containerPort: 8081
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: druid-coordinator
+  namespace: destination
+spec:
+  selector:
+    app: druid-coordinator
+  ports:
+  - port: 8081
+    targetPort: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-broker
+  namespace: destination
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid-broker
+  template:
+    metadata:
+      labels:
+        app: druid-broker
+    spec:
+      containers:
+      - name: druid-broker
+        image: apache/druid:28.0.0
+        args: ["broker"]
+        envFrom:
+        - configMapRef:
+            name: druid-config
+        ports:
+        - containerPort: 8082
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: druid-broker
+  namespace: destination
+spec:
+  selector:
+    app: druid-broker
+  ports:
+  - port: 8082
+    targetPort: 8082
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-historical
+  namespace: destination
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid-historical
+  template:
+    metadata:
+      labels:
+        app: druid-historical
+    spec:
+      containers:
+      - name: druid-historical
+        image: apache/druid:28.0.0
+        args: ["historical"]
+        envFrom:
+        - configMapRef:
+            name: druid-config
+        ports:
+        - containerPort: 8083
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: druid-historical
+  namespace: destination
+spec:
+  selector:
+    app: druid-historical
+  ports:
+  - port: 8083
+    targetPort: 8083
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-middlemanager
+  namespace: destination
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid-middlemanager
+  template:
+    metadata:
+      labels:
+        app: druid-middlemanager
+    spec:
+      containers:
+      - name: druid-middlemanager
+        image: apache/druid:28.0.0
+        args: ["middleManager"]
+        envFrom:
+        - configMapRef:
+            name: druid-config
+        ports:
+        - containerPort: 8091
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: druid-middlemanager
+  namespace: destination
+spec:
+  selector:
+    app: druid-middlemanager
+  ports:
+  - port: 8091
+    targetPort: 8091
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-router
+  namespace: destination
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid-router
+  template:
+    metadata:
+      labels:
+        app: druid-router
+    spec:
+      containers:
+      - name: druid-router
+        image: apache/druid:28.0.0
+        args: ["router"]
+        envFrom:
+        - configMapRef:
+            name: druid-config
+        ports:
+        - containerPort: 8888
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: druid-router
+  namespace: destination
+spec:
+  selector:
+    app: druid-router
+  ports:
+  - port: 8888
+    targetPort: 8888

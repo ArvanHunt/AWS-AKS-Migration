@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-generator
+  namespace: source
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-generator
+  template:
+    metadata:
+      labels:
+        app: data-generator
+    spec:
+      containers:
+      - name: data-generator
+        image: shmigrationsregistry.azurecr.io/data-generator:v2
+        env:
+        - name: POSTGRES_HOST
+          value: "postgres"
+        - name: KAFKA_HOST
+          value: "kafka:9092"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
