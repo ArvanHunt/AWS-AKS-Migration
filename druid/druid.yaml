@@ -24,8 +24,8 @@ spec:
         - containerPort: 8081
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
             memory: "1Gi"
             cpu: "500m"
@@ -41,6 +41,50 @@ spec:
   ports:
   - port: 8081
     targetPort: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-overlord
+  namespace: destination
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid-overlord
+  template:
+    metadata:
+      labels:
+        app: druid-overlord
+    spec:
+      containers:
+      - name: druid-overlord
+        image: apache/druid:28.0.0
+        args: ["overlord"]
+        envFrom:
+        - configMapRef:
+            name: druid-config
+        ports:
+        - containerPort: 8090
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: druid-overlord
+  namespace: destination
+spec:
+  selector:
+    app: druid-overlord
+  ports:
+  - port: 8090
+    targetPort: 8090
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -68,8 +112,8 @@ spec:
         - containerPort: 8082
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "512Mi"
+            cpu: "100m"
           limits:
             memory: "2Gi"
             cpu: "1000m"
@@ -112,8 +156,8 @@ spec:
         - containerPort: 8083
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "512Mi"
+            cpu: "100m"
           limits:
             memory: "2Gi"
             cpu: "1000m"
@@ -145,6 +189,20 @@ spec:
       labels:
         app: druid-middlemanager
     spec:
+      initContainers:
+      - name: init-druid-dirs
+        image: busybox
+        command:
+        - sh
+        - -c
+        - |
+          mkdir -p /var/druid/task
+          mkdir -p /var/druid/segment-cache
+          mkdir -p /var/druid/tmp
+          chmod -R 777 /var/druid
+        volumeMounts:
+        - name: druid-data
+          mountPath: /var/druid
       containers:
       - name: druid-middlemanager
         image: apache/druid:28.0.0
@@ -154,13 +212,19 @@ spec:
             name: druid-config
         ports:
         - containerPort: 8091
+        volumeMounts:
+        - name: druid-data
+          mountPath: /var/druid
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
             memory: "1Gi"
             cpu: "500m"
+      volumes:
+      - name: druid-data
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -200,11 +264,11 @@ spec:
         - containerPort: 8888
         resources:
           requests:
-            memory: "512Mi"
+            memory: "256Mi"
             cpu: "100m"
           limits:
-            memory: "2Gi"
-            cpu: "1000m"
+            memory: "512Mi"
+            cpu: "250m"
 ---
 apiVersion: v1
 kind: Service

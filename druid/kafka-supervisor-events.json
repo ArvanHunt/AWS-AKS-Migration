@@ -1,0 +1,42 @@
+{
+  "type": "kafka",
+  "spec": {
+    "ioConfig": {
+      "type": "kafka",
+      "consumerProperties": {
+        "bootstrap.servers": "kafka.source.svc.cluster.local:9092"
+      },
+      "topic": "events",
+      "inputFormat": {
+        "type": "json"
+      },
+      "useEarliestOffset": true
+    },
+    "tuningConfig": {
+      "type": "kafka",
+      "maxRowsPerSegment": 5000000,
+      "maxRowsInMemory": 25000
+    },
+    "dataSchema": {
+      "dataSource": "sh-events",
+      "timestampSpec": {
+        "column": "timestamp",
+        "format": "iso"
+      },
+      "dimensionsSpec": {
+        "dimensions": [
+          "device_id",
+          "event_type",
+          "severity",
+          "message"
+        ]
+      },
+      "granularitySpec": {
+        "type": "uniform",
+        "segmentGranularity": "HOUR",
+        "queryGranularity": "MINUTE",
+        "rollup": false
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "type": "kafka",
+  "spec": {
+    "ioConfig": {
+      "type": "kafka",
+      "consumerProperties": {
+        "bootstrap.servers": "kafka.source.svc.cluster.local:9092"
+      },
+      "topic": "telemetry",
+      "inputFormat": {
+        "type": "json"
+      },
+      "useEarliestOffset": true
+    },
+    "tuningConfig": {
+      "type": "kafka",
+      "maxRowsPerSegment": 5000000,
+      "maxRowsInMemory": 25000
+    },
+    "dataSchema": {
+      "dataSource": "sh-telemetry",
+      "timestampSpec": {
+        "column": "timestamp",
+        "format": "iso"
+      },
+      "dimensionsSpec": {
+        "dimensions": [
+          "device_id",
+          "voltage",
+          "current",
+          "temperature",
+          "power_kw",
+          "frequency"
+        ]
+      },
+      "granularitySpec": {
+        "type": "uniform",
+        "segmentGranularity": "MINUTE",
+        "queryGranularity": "SECOND",
+        "rollup": false
+      }
+    }
+  }
+}
