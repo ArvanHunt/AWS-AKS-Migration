@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sh-consumer
+  namespace: destination
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sh-consumer
+  template:
+    metadata:
+      labels:
+        app: sh-consumer
+    spec:
+      containers:
+      - name: sh-consumer
+        image: shmigrationsregistry.azurecr.io/sh-consumer:v2
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
