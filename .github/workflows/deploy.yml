@@ -13,6 +13,7 @@ on:
 
 env:
   ACR_REGISTRY: shmigrationsregistry.azurecr.io
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-and-push:
